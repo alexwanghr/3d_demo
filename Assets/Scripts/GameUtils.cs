@@ -4,66 +4,63 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class studyObj
-{
-    public string name;
-    public int studyId;
-
-    public studyObj(string n, int id)
-    {
-        name = n;
-        studyId = id;
-    }
-}
-
 public class GameUtils : MonoBehaviour
 {
     private static int level=1;
     private static int curr_objid;
     private static Dictionary<int, List<string>> objDic;
-    public static int currTry;
-
+    public static Dictionary<string, int> studytimeDic = new Dictionary<string, int>();
+    //To learn a word repeatedly, need to record the number of times you learn
+    
     public static void Init()
     {
         objDic = new Dictionary<int, List<string>>();
         List<string> level1_objs = new List<string>()
         {
-            "Banana",  "Cheese","Cherry","Hamburger",
-            "Hotdog","Olive","Watermelon","Lamb"
+            "Banana", "Hamburger","Olive","Watermelon","Lamb"
         };
         List<string> level2_objs = new List<string>()
         {
-            "Cheesecake",  "Greenpepper","Cookies","Icecream",
-            "Melon","Ketchup","Lambleg","Peach","Candy"
+            "Cheesecake",  "Greenpepper","Cookies","Icecream","Ketchup","Peach","Candy"
+        };
+        List<string> level3_objs = new List<string>()
+        {
+            "Cheese","Cherry", "Hotdog","Lambleg", "Melon"
         };
         objDic.Add(1,level1_objs);
         objDic.Add(2,level2_objs);
+        objDic.Add(3,level3_objs);
     }
 
-    public static List<studyObj> RandomObjs()
+    public static List<string> RandomObjs()
     {
-        List<studyObj> currList = new List<studyObj>();
+        List<string> currList = new List<string>();
         int size = level * 3;
         var objs = objDic[level];
         int index = Random.Range(0, objs.Count-1);
         
         while (size > 0)
         {
-            foreach (var obj in currList)
+            while (!currList.Contains(objs[index]))
             {
-                if (objs[index] == obj.name)
-                {
-                    index = Random.Range(0, objs.Count-1);
-                }
+                Debug.Log("RandomObjs: " + objs[index]);
+                //3 same objs, each time study become harder
+                currList.Add(objs[index]);
+                currList.Add(objs[index]);
+                currList.Add(objs[index]);
+                size--;
             }
-            
-            //3 same objs, each time study become harder
-            currList.Add(new studyObj(objs[index],1));
-            currList.Add(new studyObj(objs[index],2));
-            currList.Add(new studyObj(objs[index],3));
-            size--;
+            index = Random.Range(0, objs.Count - 1);
         }
 
+        ShuffleList(currList);
+        studytimeDic.Clear();
+        return currList;
+    }
+    
+    public static List<string> RandomTestObjs()
+    {
+        List<string> currList = objDic[level];
         ShuffleList(currList);
         return currList;
     }
@@ -93,28 +90,46 @@ public class GameUtils : MonoBehaviour
         return curr_objid;
     }
 
-    public static void setCurrTry(int count)
-    {
-        currTry = count;
-    }
-
-    public static int getCurrTry()
-    {
-        return currTry;
-    }
-
+    //when player get over than this score, player can go into final battle(test)
     public static int getCurrTestScore()
     {
         switch (level)
         {
             case(1):
-                return 3;
+                return 1;
             case(2):
                 return 5;
             case(3):
                 return 10;
             default:
                 return 3;
+        }
+    }
+
+    public static void setStudyTime(string name)
+    {
+        if (studytimeDic.ContainsKey(name))
+        {
+            int time = studytimeDic[name];
+            time++;
+            studytimeDic[name] = time;
+        }
+        else
+        {
+            studytimeDic.Add(name,1);
+        }
+    }
+
+    public static int getStudyTime(string name)
+    {
+        if (studytimeDic.ContainsKey(name))
+        {
+            return studytimeDic[name];
+        }
+        else
+        {
+            studytimeDic.Add(name,1);
+            return 1;
         }
     }
     

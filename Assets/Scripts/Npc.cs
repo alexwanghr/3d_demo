@@ -23,9 +23,9 @@ public class Npc : MonoBehaviour
         animator = GetComponent<Animator>();
         this.transform.Rotate(new Vector3(0,Random.Range(50, 200),0));
         maxTime = Random.Range(3, 7);
-        moveDistance = 5;
+        moveDistance = 2;
         targetpos1 = transform.position + new Vector3(moveDistance, 0, moveDistance);
-        targetpos2 = transform.position + new Vector3(-moveDistance, 0 - moveDistance);
+        targetpos2 = transform.position + new Vector3(-moveDistance, 0 ,2*moveDistance);
         start = true;
         end = true;
     }
@@ -33,11 +33,6 @@ public class Npc : MonoBehaviour
     public void PlayAni(string name)
     {
         animator.Play(name);
-    }
-
-    public Vector3 getPosition()
-    {
-        return transform.position;
     }
 
     public void ShowPlayerWin()
@@ -89,5 +84,10 @@ public class Npc : MonoBehaviour
             start = true;
             end = true;
         }
+    }
+
+    public void Show(bool show)
+    {
+        gameObject.SetActive(show);
     }
 }

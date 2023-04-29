@@ -8,26 +8,27 @@ public class Boss : MonoBehaviour
     public int currlife;
     public Animator animator;
 
-    public void Init()
+    public void StartBattle()
     {
         int level = GameUtils.GetLevel();
         switch (level)
         {
             case(1):
-                life = 5;
+                life = 3;
                 break;
             case(2):
-                life = 8;
+                life = 5;
                 break;
             case(3):
-                life = 10;
+                life = 8;
                 break;
             default:
-                life = 5;
+                life = 3;
                 break;
         }
 
         currlife = life;
+        transform.position = new Vector3(0, 0.35f, 40);
         gameObject.SetActive(true);
     }
     
@@ -48,17 +49,7 @@ public class Boss : MonoBehaviour
 
     public void getHit()
     {
-        life--;
-        if (life == 0)
-        {
-            Dead();
-        }
-
-        PlayAni("DefaultGetHit");
-    }
-
-    public void Dead()
-    {
-        gameObject.SetActive(false);
+        currlife--;
+        PlayAni("GetHit");
     }
 }

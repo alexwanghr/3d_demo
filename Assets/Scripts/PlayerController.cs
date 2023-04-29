@@ -16,9 +16,8 @@ public class PlayerController : MonoBehaviour
     public Animator animator;
     public bool stop;
     private PlayAni currAni;
-    public StudyPageUI studyPage;
+    public StudyPage studyPage;
     public TestPage testPage;
-    public BattlePage battlePage;
     public int currLife;
 
     private void Start()
@@ -32,6 +31,12 @@ public class PlayerController : MonoBehaviour
     public void setStop(bool currstop)
     {
         stop = currstop;
+    }
+
+    public void restart()
+    {
+        currLife = 3;
+        transform.position = new Vector3(0, 0.38f, 0);
     }
 
     void Update()
@@ -69,8 +74,14 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.name.Contains("Food"))
         {
             InteractObject o = other.GetComponent<InteractObject>();
-            studyPage.Init(o.GetName(),o.getStudyId());
+            studyPage.Init(o.GetName());
             GameUtils.SetCurrObjId(o.getId());
+            stop = true;
+        }
+        else if (other.gameObject.name.Contains("Test"))
+        {
+            InteractObject o = other.GetComponent<InteractObject>();
+            testPage.Init(o.GetName());
             stop = true;
         }
     }

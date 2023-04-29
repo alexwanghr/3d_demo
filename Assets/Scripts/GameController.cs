@@ -20,9 +20,12 @@ public class GameController : MonoBehaviour
     private int closeDistance = 10;
     private PlayerController player;
     public Text scoreTxt;
+    public Text studyTxt;
     public int currScore;
     public Boss boss;
     public GameObject gameOverPage;
+    public ReadyPage readyPage;
+    public BattlePage battlePage;
     void Start()
     {
         player = FindObjectOfType<PlayerController>();
@@ -32,6 +35,7 @@ public class GameController : MonoBehaviour
 
     void Clear()
     {
+        checkBossDis = false;
         objList.Clear();
         boss.gameObject.SetActive(false);
         currScore=0;
@@ -40,13 +44,20 @@ public class GameController : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-
-        player.transform.position = new Vector3(0, 0.38f, 0);
+    }
+    
+    public void RestartGame()
+    {
+        Clear();
+        player.restart();
+        npc.Show(true);
+        InitObjects();
     }
 
+    #region study logic
     void InitObjects()
     {
-        List<studyObj> objs = GameUtils.RandomObjs();
+        List<string> objs = GameUtils.RandomObjs();
         for (int i = 0; i < objs.Count; i++)
         {
             InteractObject o = Instantiate(foodObj.gameObject, transform.position, transform.rotation, objtrans)
@@ -56,16 +67,6 @@ public class GameController : MonoBehaviour
             o.gameObject.transform.position = pos;
             objList.Add(o);
         }
-        
-        // for (int i = 0; i < npccount; i++)
-        // {
-        //     Npc o = Instantiate(npcObj.gameObject, transform.position, transform.rotation, npctrans)
-        //         .GetComponent<Npc>();
-        //     Vector3 pos = new Vector3(Random.Range(minX, maxX), 0.6f, Random.Range(minZ, maxZ));
-        //     o.gameObject.transform.position = pos;
-        //     o.gameObject.SetActive(true);
-        //     npcList.Add(o);
-        // }
     }
 
     public void RefreshObj(bool win)
@@ -104,9 +105,10 @@ public class GameController : MonoBehaviour
 
     public void PlayerWin()
     {
-        Debug.Log("***************STUDY*************** player win");
-        var playerPos = player.transform.position;
         npc.ShowPlayerWin();
+        studyTxt.text = "Congratulations";
+        studyTxt.color = Color.green;
+        studyTxt.GetComponent<Animator>().Play("studywin");
         currScore++;
         scoreTxt.text = "Score: " + currScore;
 
@@ -118,40 +120,130 @@ public class GameController : MonoBehaviour
 
     public void PlayerLose()
     {
-        Debug.Log("***************STUDY*************** player lose");
-        var playerPos = player.transform.position;
         npc.ShowPlayerLose();
+        studyTxt.text = "Keep it up";
+        studyTxt.color = Color.red;
+        studyTxt.GetComponent<Animator>().Play("studywin");
+        studyTxt.gameObject.SetActive(true);
     }
 
+    #endregion
+
+
+    #region test(battle) logic
+
+    private bool checkBossDis;
+    public void ShowBoss()
+    {
+        checkBossDis = true;
+        var playerpos = player.transform.position;
+        Vector3 pos = new Vector3(0, 0.35f, playerpos.z+15);
+        boss.transform.position = pos;
+        boss.gameObject.SetActive(true);
+        player.setStop(false);
+    }
+
+    //Detect collision by checking distance between two Objects
+    private void Update()
+    {
+        if (checkBossDis)
+        {
+            if (getDistance(player.transform.position, boss.transform.position) < 5)
+            {
+                readyPage.show();
+                player.setStop(true);
+            }
+        }
+    }
+    
     public float getDistance(Vector3 pos_a, Vector3 pos_b)
     {
         return (pos_a - pos_b).magnitude;
     }
-
-    public void RestartGame()
+    
+    public void StartBattle()
     {
         Clear();
-        InitObjects();
+        npc.Show(false);
+        player.restart();
+        boss.StartBattle();
+        battlePage.gameObject.SetActive(true);
+        checkBossDis = false;
+        StartCoroutine(createTestObjs());
+        player.setStop(false);
     }
 
-    public void ShowBoss()
+    private bool stopGame;
+    IEnumerator createTestObjs()
     {
-        boss.Init();
-        var playerpos = player.transform.position;
-        Vector3 pos = new Vector3(playerpos.x, 0.85f, playerpos.z+10);
-        boss.transform.position = pos;
+        while (!stopGame && objList.Count<10)
+        {
+            InitTestObjects();
+            yield return new WaitForSeconds(4f);
+        }
+    }
+    
+    void InitTestObjects()
+    {
+        List<string> objs = GameUtils.RandomTestObjs();
+        string obj = objs[Random.Range(0, objs.Count - 1)];
+        InteractObject o = Instantiate(foodObj.gameObject, transform.position, transform.rotation, objtrans)
+            .GetComponent<InteractObject>();
+        Vector3 pos = new Vector3(Random.Range(minX, maxX), 0.6f, 30);
+        o.InitTestObj(obj);
+        o.gameObject.transform.position = pos;
+        objList.Add(o);
+    }
+
+    public void StopBattle()
+    {
+        stopGame = true;
+        foreach (var testobj in objList)
+        {
+            testobj.ChangeState(true);
+        }
+    }
+
+    public void StartBattleFromTest()
+    {
+        stopGame = false;
+        foreach (var testobj in objList)
+        {
+            testobj.ChangeState(false);
+        }
+    }
+
+    public void onBattleEnd(bool win)
+    {
+        foreach (Transform child in objtrans) 
+        {
+            Destroy(child.gameObject);
+        }
+        objList.Clear();
+        
+        if (win)
+        {
+            GameWin();
+        }
+        else
+        {
+            GameOver();
+        }
     }
 
     public void GameOver()
     {
-        gameOverPage.SetActive(false);
+        gameOverPage.SetActive(true);
+        boss.gameObject.SetActive(false);
     }
 
-    public void PassCurrTest()
+    public void GameWin()
     {
         boss.gameObject.SetActive(false);
         GameUtils.SetLevel(GameUtils.GetLevel()+1);
         RestartGame();
     }
+    
+    #endregion
 
 }

@@ -8,14 +8,14 @@ public class InputLetter : MonoBehaviour
     public InputField inputField;
     public string answer;
     public bool correct;
-    public StudyPageUI studyPage;
+    public StudyPage studyPage;
     public bool empty=true;
     void Start()
     {
         correct = false;
         inputField = GetComponent<InputField>();
         inputField.onValueChanged.AddListener(delegate {ValueChangeCheck(); });
-        studyPage = GetComponentInParent<StudyPageUI>();
+        studyPage = GetComponentInParent<StudyPage>();
     }
 
     public void SetAnswer(string str)
@@ -25,7 +25,6 @@ public class InputLetter : MonoBehaviour
 
     public void ValueChangeCheck()
     {
-        inputField.text.ToUpper();
         if (string.IsNullOrEmpty(inputField.text))
         {
             empty = true;
@@ -33,7 +32,7 @@ public class InputLetter : MonoBehaviour
         else
         {
             empty = false;
-            if (inputField.text.Equals(answer))
+            if (inputField.text.Equals(answer.ToUpper()) || inputField.text.Equals(answer.ToLower()))
             {
                 inputField.GetComponentInChildren<Text>().color = Color.green;
                 correct = true;
@@ -45,14 +44,10 @@ public class InputLetter : MonoBehaviour
             }
         }
 
-        studyPage.Check();
+        Debug.Log("***************Letter Check************* " + correct);
+        studyPage.Check(correct);
     }
 
-    public bool getCorrect()
-    {
-        return correct;
-    }
-    
     public bool getEmpty()
     {
         return empty;

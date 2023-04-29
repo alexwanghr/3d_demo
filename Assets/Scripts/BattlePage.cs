@@ -10,17 +10,30 @@ public class BattlePage : MonoBehaviour
     public Image bossLife;
     public Boss boss;
     public PlayerController player;
+    public GameController gameController;
 
     private void Start()
     {
         player = FindObjectOfType<PlayerController>();
+        gameController = FindObjectOfType<GameController>();
         boss = FindObjectOfType<Boss>();
     }
 
     public void Refresh()
     {
-        bossLife.fillAmount = boss.GetBossCurrLife()/boss.GetBossLife();
-        playerLife.fillAmount = player.GetCurrLife() / 3;
+        bossLife.fillAmount = (float)boss.GetBossCurrLife()/boss.GetBossLife();
+        playerLife.fillAmount = (float)player.GetCurrLife() / 3;
+        if (boss.GetBossCurrLife() == 0 || player.GetCurrLife() == 0)
+        {
+            StartCoroutine(wait());
+            gameController.onBattleEnd(boss.GetBossCurrLife()==0);
+            Close();
+        }
+    }
+
+    private IEnumerator wait()
+    {
+        yield return new WaitForSeconds(1f);
     }
 
     public void Close()

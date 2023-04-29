@@ -7,13 +7,14 @@ public class InteractObject : MonoBehaviour
 {
     public string name;
     public int id;
-    public int studyId;
-    
-    public void Init(int i, studyObj obj)
+
+    public bool stop;
+    public bool isTestObj;
+
+    public void Init(int i, string word)
     {
-        studyId = obj.studyId;
         id = i;
-        name = obj.name;
+        name = word;
         
         try
         {
@@ -36,9 +37,37 @@ public class InteractObject : MonoBehaviour
         return id;
     }
 
-    public int getStudyId()
+    public void InitTestObj(string word)
     {
-        return studyId;
+        //id = i;
+        name = word;
+        isTestObj = true;
+        this.gameObject.name = "Test";
+        
+        try
+        {
+            Instantiate(Resources.Load(name), transform.position, transform.rotation,this.transform);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw new Exception(name);
+        }
     }
-    
+
+    public void Update()
+    {
+        if (isTestObj)
+        {
+            if (!stop)
+            {
+                transform.position += Vector3.back * Time.deltaTime * 2f;
+            }
+        }
+    }
+
+    public void ChangeState(bool stop)
+    {
+        this.stop = stop;
+    }
 }

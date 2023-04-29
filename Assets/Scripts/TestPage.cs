@@ -30,7 +30,6 @@ public class TestPage : MonoBehaviour
 
     private void OnEnable()
     {
-        start = true;
         switch (level)
         {
             case(1):
@@ -43,6 +42,7 @@ public class TestPage : MonoBehaviour
                 testTime = 5;
                 break;
         }
+        start = true;
     }
 
     void Update()
@@ -65,7 +65,9 @@ public class TestPage : MonoBehaviour
 
     public void Init(string name)
     {
+        gameController.StopBattle();
         ans = name;
+        GetWrongAnswer();
         for (int i = 0; i < 3; i++)
         {
             Button o = Instantiate(answerBtn.gameObject, transform.position, transform.rotation, ansTrans)
@@ -87,9 +89,11 @@ public class TestPage : MonoBehaviour
 
     public void GetWrongAnswer()
     {
+        ansList.Clear();
         ansList.Add(ans);
-        ansList.Add("111");
-        ansList.Add("222");
+        ansList.Add(new string(GameUtils.Shuffle(ans)));
+        ansList.Add(new string(GameUtils.Shuffle(ans)));
+        GameUtils.ShuffleList(ansList);
     }
 
     public void onRightClick()
@@ -118,6 +122,7 @@ public class TestPage : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+        gameController.StartBattleFromTest();
     }
 
 }
