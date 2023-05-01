@@ -10,6 +10,14 @@ public class InteractObject : MonoBehaviour
 
     public bool stop;
     public bool isTestObj;
+    private PlayerController player;
+    private GameController gameController;
+
+    private void Start()
+    {
+        player = FindObjectOfType<PlayerController>();
+        gameController = FindObjectOfType<GameController>();
+    }
 
     public void Init(int i, string word)
     {
@@ -62,8 +70,22 @@ public class InteractObject : MonoBehaviour
             if (!stop)
             {
                 transform.position += Vector3.back * Time.deltaTime * 2f;
+                if (getDistance(player.transform.position, transform.position) < 3 && transform.position.z>=player.transform.position.z)
+                {
+                    gameController.OpenTestPage(this);
+                }
+
+                if (transform.position.z < -1)
+                {
+                    Destroy(this.gameObject);
+                }
             }
         }
+    }
+    
+    public float getDistance(Vector3 pos_a, Vector3 pos_b)
+    {
+        return (pos_a - pos_b).magnitude;
     }
 
     public void ChangeState(bool stop)

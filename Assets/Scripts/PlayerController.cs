@@ -8,7 +8,6 @@ public enum PlayAni
 {
     Move=1,
     Stop=2,
-    Pick=3,
 }
 public class PlayerController : MonoBehaviour
 {
@@ -78,12 +77,6 @@ public class PlayerController : MonoBehaviour
             GameUtils.SetCurrObjId(o.getId());
             stop = true;
         }
-        else if (other.gameObject.name.Contains("Test"))
-        {
-            InteractObject o = other.GetComponent<InteractObject>();
-            testPage.Init(o.GetName());
-            stop = true;
-        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -106,9 +99,6 @@ public class PlayerController : MonoBehaviour
                 break;
             case PlayAni.Stop:
                 animator.SetTrigger("stop");
-                break;
-            case PlayAni.Pick:
-                animator.SetTrigger("pick");
                 break;
         }
     }

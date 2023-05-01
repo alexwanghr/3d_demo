@@ -10,22 +10,24 @@ public class GameController : MonoBehaviour
 {
     public GameObject foodObj;
     public Npc npc;
-    public GameObject npcObj;
     public List<InteractObject> objList = new List<InteractObject>();
     public Transform objtrans;
-    private int maxX = 7;
-    private int minX = -7;
+    private int maxX = 5;
+    private int minX = -5;
     private int maxZ = 40;
     private int minZ = 6;
     private int closeDistance = 10;
     private PlayerController player;
     public Text scoreTxt;
+    public Text levelTxt;
+    public Button settingBtn;
     public Text studyTxt;
     public int currScore;
     public Boss boss;
     public GameObject gameOverPage;
     public ReadyPage readyPage;
     public BattlePage battlePage;
+    public TestPage testPage;
     void Start()
     {
         player = FindObjectOfType<PlayerController>();
@@ -40,6 +42,7 @@ public class GameController : MonoBehaviour
         boss.gameObject.SetActive(false);
         currScore=0;
         scoreTxt.text = "Score: " + currScore;
+        levelTxt.text = "Level: " + GameUtils.GetLevel();
         foreach (Transform child in objtrans) 
         {
             Destroy(child.gameObject);
@@ -50,8 +53,16 @@ public class GameController : MonoBehaviour
     {
         Clear();
         player.restart();
+        createTestObj = false;
         npc.Show(true);
         InitObjects();
+    }
+
+    void showUI(bool show)
+    {
+        scoreTxt.gameObject.SetActive(show);
+        levelTxt.gameObject.SetActive(show);
+        settingBtn.gameObject.SetActive(show);
     }
 
     #region study logic
@@ -111,6 +122,7 @@ public class GameController : MonoBehaviour
         studyTxt.GetComponent<Animator>().Play("studywin");
         currScore++;
         scoreTxt.text = "Score: " + currScore;
+        levelTxt.text = "Level: " + GameUtils.GetLevel();
 
         if (currScore >= GameUtils.getCurrTestScore())
         {
@@ -133,6 +145,8 @@ public class GameController : MonoBehaviour
     #region test(battle) logic
 
     private bool checkBossDis;
+    private bool createTestObj;
+    private float timer;
     public void ShowBoss()
     {
         checkBossDis = true;
@@ -154,6 +168,20 @@ public class GameController : MonoBehaviour
                 player.setStop(true);
             }
         }
+
+        if (createTestObj)
+        {
+            timer += Time.deltaTime;
+            if (timer >= 4f)
+            {
+                timer = 0;
+                Debug.Log(objtrans.childCount);
+                if (objtrans.childCount < 10)
+                {
+                    InitTestObjects();
+                }
+            }
+        }
     }
     
     public float getDistance(Vector3 pos_a, Vector3 pos_b)
@@ -168,48 +196,54 @@ public class GameController : MonoBehaviour
         player.restart();
         boss.StartBattle();
         battlePage.gameObject.SetActive(true);
+        showUI(false);
         checkBossDis = false;
-        StartCoroutine(createTestObjs());
+        createTestObj = true;
         player.setStop(false);
     }
 
-    private bool stopGame;
-    IEnumerator createTestObjs()
-    {
-        while (!stopGame && objList.Count<10)
-        {
-            InitTestObjects();
-            yield return new WaitForSeconds(4f);
-        }
-    }
-    
     void InitTestObjects()
     {
-        List<string> objs = GameUtils.RandomTestObjs();
+        List<string> objs = GameUtils.RandomTestObjsFromStudy();
         string obj = objs[Random.Range(0, objs.Count - 1)];
         InteractObject o = Instantiate(foodObj.gameObject, transform.position, transform.rotation, objtrans)
             .GetComponent<InteractObject>();
-        Vector3 pos = new Vector3(Random.Range(minX, maxX), 0.6f, 30);
+        Vector3 pos = new Vector3(Random.Range(-3, 3), 0.6f, 30);
         o.InitTestObj(obj);
         o.gameObject.transform.position = pos;
-        objList.Add(o);
     }
 
     public void StopBattle()
     {
-        stopGame = true;
-        foreach (var testobj in objList)
+        createTestObj = false;
+        foreach (Transform testobj in objtrans)
         {
-            testobj.ChangeState(true);
+            if (testobj.GetComponent<InteractObject>() != null)
+            {
+                testobj.GetComponent<InteractObject>().ChangeState(true);
+            }
         }
+    }
+
+    private InteractObject currTestObj;
+    public void OpenTestPage(InteractObject obj)
+    {
+        currTestObj = obj;
+        testPage.Init(obj.GetName());
+        player.setStop(true);
     }
 
     public void StartBattleFromTest()
     {
-        stopGame = false;
-        foreach (var testobj in objList)
+        Destroy(currTestObj.gameObject);
+        player.setStop(false);
+        createTestObj = true;
+        foreach (Transform testobj in objtrans)
         {
-            testobj.ChangeState(false);
+            if (testobj.GetComponent<InteractObject>() != null)
+            {
+                testobj.GetComponent<InteractObject>().ChangeState(false);
+            }
         }
     }
 
@@ -220,6 +254,7 @@ public class GameController : MonoBehaviour
             Destroy(child.gameObject);
         }
         objList.Clear();
+        createTestObj = false;
         
         if (win)
         {
@@ -229,6 +264,7 @@ public class GameController : MonoBehaviour
         {
             GameOver();
         }
+        showUI(true);
     }
 
     public void GameOver()

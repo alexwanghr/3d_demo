@@ -8,6 +8,7 @@ public class TestPage : MonoBehaviour
 {
     private bool start;
     private int level;
+    private float orginTime;
     private float testTime;
     private float timer = 0;
     public Text timingTxt;
@@ -26,25 +27,22 @@ public class TestPage : MonoBehaviour
         player = FindObjectOfType<PlayerController>();
         boss = FindObjectOfType<Boss>();
         level = GameUtils.GetLevel();
-    }
-
-    private void OnEnable()
-    {
         switch (level)
         {
             case(1):
-                testTime = 10;
+                orginTime = 8;
                 break;
             case(2):
-                testTime = 8;
+                orginTime = 6;
                 break;
             case(3):
-                testTime = 5;
+                orginTime = 5;
                 break;
         }
-        start = true;
-    }
 
+        testTime = orginTime;
+    }
+    
     void Update()
     {
         if (start)
@@ -53,6 +51,7 @@ public class TestPage : MonoBehaviour
             {
                 onTimeEnd();
             }
+            
             timer += Time.deltaTime;
             if (timer >= 1f)
             {
@@ -66,7 +65,7 @@ public class TestPage : MonoBehaviour
     public void Init(string name)
     {
         gameController.StopBattle();
-        ans = name;
+        ans = name.ToLower();
         GetWrongAnswer();
         for (int i = 0; i < 3; i++)
         {
@@ -84,6 +83,9 @@ public class TestPage : MonoBehaviour
             o.gameObject.SetActive(true);
         }
         
+        start = true;
+        testTime = orginTime;
+        timingTxt.text = testTime.ToString();
         this.gameObject.SetActive(true);
     }
 
@@ -104,12 +106,14 @@ public class TestPage : MonoBehaviour
 
     public void onWrongClick()
     {
+        Debug.Log("Test------------on wrong click");
         player.getHit();
         Close();
     }
 
     public void onTimeEnd()
     {
+        Debug.Log("Test------------on time end");
         player.getHit();
         Close();
     }

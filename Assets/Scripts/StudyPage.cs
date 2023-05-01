@@ -130,6 +130,13 @@ public class StudyPage : MonoBehaviour
 
     public void onClosePage()
     {
+        foreach (var input in inputList)
+        {
+            if (!input.getCorrect())
+            {
+                win = false;
+            }
+        }
         this.gameObject.SetActive(false);
         gameController.RefreshObj(win);
         if (win)

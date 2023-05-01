@@ -44,13 +44,17 @@ public class InputLetter : MonoBehaviour
             }
         }
 
-        Debug.Log("***************Letter Check************* " + correct);
         studyPage.Check(correct);
     }
 
     public bool getEmpty()
     {
         return empty;
+    }
+
+    public bool getCorrect()
+    {
+        return correct;
     }
 
     

@@ -8,6 +8,7 @@ public class GameUtils : MonoBehaviour
 {
     private static int level=1;
     private static int curr_objid;
+    private static List<string> curr_studyobjs;
     private static Dictionary<int, List<string>> objDic;
     public static Dictionary<string, int> studytimeDic = new Dictionary<string, int>();
     //To learn a word repeatedly, need to record the number of times you learn
@@ -54,19 +55,35 @@ public class GameUtils : MonoBehaviour
         }
 
         ShuffleList(currList);
+        curr_studyobjs = currList;
         studytimeDic.Clear();
         return currList;
     }
     
     public static List<string> RandomTestObjs()
     {
-        List<string> currList = objDic[level];
-        ShuffleList(currList);
-        return currList;
+        List<string> testList = objDic[level];
+        ShuffleList(testList);
+        return testList;
+    }
+    
+    public static List<string> RandomTestObjsFromStudy()
+    {
+        List<string> testList = new List<string>();
+        foreach (var s in curr_studyobjs)
+        {
+            if (!testList.Contains(s))
+            {
+                testList.Add(s);
+            }
+        }
+        ShuffleList(testList);
+        return testList;
     }
 
     public static void SetLevel(int l)
     {
+        Debug.Log("SET LEVEL "+ l);
         if (l > 3)
         {
             level = 3;

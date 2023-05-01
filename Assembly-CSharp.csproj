@@ -51,6 +51,7 @@
   </PropertyGroup>
   <ItemGroup>
      <Compile Include="Assets\Supercyan Character Pack Free Sample\Scripts\FreeCameraLogic.cs" />
+     <Compile Include="Assets\Scripts\ReadyPage.cs" />
      <Compile Include="Assets\Scripts\InputLetter.cs" />
      <Compile Include="Assets\Supercyan Character Pack Free Sample\Scripts\SimpleSampleCharacterControl.cs" />
      <Compile Include="Assets\Supercyan Character Pack Free Sample\Scripts\DemoFree.cs" />
@@ -66,7 +67,6 @@
      <Compile Include="Assets\Scripts\CameraFollow.cs" />
      <Compile Include="Assets\Scripts\TestPage.cs" />
      <Compile Include="Assets\Scripts\InteractObject.cs" />
-     <Compile Include="Assets\Scripts\ReadyPage.cs" />
      <None Include="Assets\Resources\Food_ReadMe.txt" />
      <None Include="Assets\Supercyan Character Pack Free Sample\Shaders\Legacy\CelShader.shader" />
      <None Include="Assets\Supercyan Character Pack Free Sample\Shaders\SupercyanShader.shader" />

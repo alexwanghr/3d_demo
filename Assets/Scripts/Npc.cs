@@ -21,7 +21,7 @@ public class Npc : MonoBehaviour
     public void Start()
     {
         animator = GetComponent<Animator>();
-        this.transform.Rotate(new Vector3(0,Random.Range(50, 200),0));
+        this.transform.Rotate(new Vector3(0,140,0));
         maxTime = Random.Range(3, 7);
         moveDistance = 2;
         targetpos1 = transform.position + new Vector3(moveDistance, 0, moveDistance);
@@ -47,7 +47,7 @@ public class Npc : MonoBehaviour
     
     void Update()
     {
-        Move();
+        //Move();
     }
  
     Vector3 RandV3(Vector3 a,Vector3 b)
